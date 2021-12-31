@@ -7,12 +7,20 @@ public class RamEnemyAI : Enemy
     public GameObject player;
     public float turnSpeed;
     public float moveSpeed;
+    [SerializeField] Rigidbody rigidbody;
+    [SerializeField] bool usePhysics = false;
 
     // Start is called before the first frame update
     void Start()
     {
+        if(rigidbody == null){
+            rigidbody = GetComponent<Rigidbody>();
+        }
+
         if (player == null)
+        {
             player = GameObject.Find("Player");
+        }
 
         turnSpeed = turnSpeed * Mathf.Deg2Rad;
     }

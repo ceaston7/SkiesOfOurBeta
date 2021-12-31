@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class HomingMissile : MonoBehaviour
 {
-    public float turnSpeed;
-    public float moveSpeed;
-    Enemy closestEnemy;
-    Transform parentTransform;
+    [SerializeField] float turnSpeed = 30.0f;
+    [SerializeField] float moveSpeed = 3.0f;
+    [SerializeField] float lifespan = 10.0f;
+    public Enemy closestEnemy;
+    public Transform parentTransform;
 
     // Start is called before the first frame update
     void Start()
@@ -15,6 +16,10 @@ public class HomingMissile : MonoBehaviour
         transform.localScale = new Vector3(0.2f, 0.2f, 0.4f);
 
         var enemyArray = FindObjectsOfType<Enemy>();
+        Debug.Log("ENEMIES");
+        foreach(Enemy a in enemyArray){
+            Debug.Log("enemy name: " + a.name);
+        }
         closestEnemy = enemyArray[0];
         float closestDist = Vector3.Distance(transform.position, enemyArray[0].transform.position);
 
@@ -26,7 +31,11 @@ public class HomingMissile : MonoBehaviour
             }
         }
 
+        //Add missile to list on locked enemy so that homing can be deactivated on enemy destruction
+        closestEnemy.MissileLocked(this);
+
         gameObject.transform.position = parentTransform.position + parentTransform.forward * parentTransform.localScale.z;
+        gameObject.transform.rotation = Quaternion.LookRotation(parentTransform.forward, Vector3.up);
 
         turnSpeed = turnSpeed * Mathf.Deg2Rad;
     }
@@ -34,15 +43,33 @@ public class HomingMissile : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.forward = Vector3.RotateTowards(transform.forward, closestEnemy.transform.position - transform.position, turnSpeed * Time.deltaTime, 0.0f);
-        transform.position += transform.forward * moveSpeed * Time.deltaTime;
+        if (lifespan > 0f)
+        {
+            if (closestEnemy != null)
+            {
+                Debug.Log("tracking enemy " + closestEnemy.name);
+                transform.forward = Vector3.RotateTowards(transform.forward, closestEnemy.transform.position - transform.position, turnSpeed * Time.deltaTime, 0.0f);
+                transform.position += transform.forward * moveSpeed * Time.deltaTime;
+            }
+            else
+            {
+                Debug.Log("not tracking");
+                transform.position += transform.forward * moveSpeed * Time.deltaTime;
+            }
+        }
+        else{
+            Destroy(gameObject);
+        }
+
+        lifespan -= Time.deltaTime;
     }
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("enemy"))
-            Destroy(collision.gameObject);
-            
-        Destroy(gameObject);
+        if (collision.gameObject.CompareTag("enemy")) 
+        {
+            collision.gameObject.GetComponent<Enemy>().Kill();
+            Destroy(gameObject); 
+        }
     }
 }

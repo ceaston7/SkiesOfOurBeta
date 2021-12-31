@@ -33,13 +33,14 @@ public class PlayerControl : MonoBehaviour
     public Camera playerCamera;
     Quaternion cameraWorldRotation;
 
-    public GameObject player;
+    //Weapons
+    public Material missileMaterial;
 
     void Start()
     {
         rotateInput = new Vector3(0, 0, 0);
         rotationRates = new Vector3(pitchRate, yawRate, rollRate);
-        rigidbody = this.GetComponent<Rigidbody>();
+        rigidbody = GetComponent<Rigidbody>();
         //friction = new Vector3(frictionRate, frictionRate, frictionRate);
         cameraWorldRotation = playerCamera.transform.rotation;
     }
@@ -52,12 +53,14 @@ public class PlayerControl : MonoBehaviour
         thrust = Input.GetAxis("Thrust");
         climb = Input.GetAxis("Ascend");
 
+        /*
         Debug.Log("Climb: " + climb);
         Debug.Log("Climb vector: " + transform.up * climb);
+        */
         
         rotateInput = new Vector3(pitchIn, yawIn, rollIn);
         rotateInput.Scale(rotationRates * Time.fixedDeltaTime);
-        player.transform.localRotation *= Quaternion.Euler(rotateInput);
+        transform.localRotation *= Quaternion.Euler(rotateInput);
 
         float velocityMag = rigidbody.velocity.magnitude;
 
@@ -84,7 +87,8 @@ public class PlayerControl : MonoBehaviour
         }
         if(Input.GetKeyDown("m")){
             var a = GameObject.CreatePrimitive(PrimitiveType.Cube).AddComponent<HomingMissile>();
-            a.GetComponent<Bullet>().parentTransform = transform;
+            a.GetComponent<HomingMissile>().parentTransform = transform;
+            a.GetComponent<Renderer>().material = missileMaterial;
         }
     }
 }
