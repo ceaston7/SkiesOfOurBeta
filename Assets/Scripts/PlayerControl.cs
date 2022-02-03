@@ -30,6 +30,7 @@ public class PlayerControl : MonoBehaviour
     float yaw;
     float pitch;
     float roll;
+    int missileBank;
 
     //Vector3 friction;
     Rigidbody rigidbody;
@@ -61,6 +62,10 @@ public class PlayerControl : MonoBehaviour
 
     //UI
     public UIManager UI;
+
+    // Placeholder for magic values
+    string ShootBulletKey = "k";
+    string ShootMissileKey = "m";
 
     void Start()
     {
@@ -113,27 +118,16 @@ public class PlayerControl : MonoBehaviour
         }
     }
 
+    public void Kill()
+    {
+        Destroy(gameObject);
+    }
+
     void Update(){
         //playerCamera.transform.rotation = cameraWorldRotation;
 
         //Fire bullets
-        if(Input.GetKeyDown(shootBullets) && !firingBullets){
-            firingBullets = true;
-            StartCoroutine(FireBullets());
-        }
-        else if(Input.GetKeyUp(shootBullets) && firingBullets){
-            firingBullets = false;
-            StartCoroutine(ReloadBullets());
-        }
 
-        //Fire homing missile
-        if(Input.GetKey(shootMissiles) && missileLoaded){
-            missileLoaded = false;
-            var a = GameObject.CreatePrimitive(PrimitiveType.Cube).AddComponent<HomingMissile>();
-            a.GetComponent<HomingMissile>().parentTransform = transform;
-            a.GetComponent<Renderer>().material = missileMaterial;
-            StartCoroutine(ReloadMissile());
-        }
     }
 
     IEnumerator FireBullets(){
@@ -161,6 +155,26 @@ public class PlayerControl : MonoBehaviour
         while(!firingBullets && currentBullets < maxBullets){
             currentBullets++;
             yield return new WaitForSeconds(1f/bulletReloadRate);
+    }
+
+    void CheckInput()
+    {
+        if(Input.GetKeyDown(shootBullets) && !firingBullets){
+            firingBullets = true;
+            StartCoroutine(FireBullets());
+        }
+        else if(Input.GetKeyUp(shootBullets) && firingBullets){
+            firingBullets = false;
+            StartCoroutine(ReloadBullets());
+        }
+
+        //Fire homing missile
+        if(Input.GetKey(shootMissiles) && missileLoaded){
+            missileLoaded = false;
+            var a = GameObject.CreatePrimitive(PrimitiveType.Cube).AddComponent<HomingMissile>();
+            a.GetComponent<HomingMissile>().parentTransform = transform;
+            a.GetComponent<Renderer>().material = missileMaterial;
+            StartCoroutine(ReloadMissile());
         }
     }
 }
