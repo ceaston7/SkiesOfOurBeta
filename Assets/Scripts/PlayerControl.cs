@@ -63,10 +63,6 @@ public class PlayerControl : MonoBehaviour
     //UI
     public UIManager UI;
 
-    // Placeholder for magic values
-    string ShootBulletKey = "k";
-    string ShootMissileKey = "m";
-
     void Start()
     {
         rotateInput = new Vector3(0, 0, 0);
@@ -124,10 +120,7 @@ public class PlayerControl : MonoBehaviour
     }
 
     void Update(){
-        //playerCamera.transform.rotation = cameraWorldRotation;
-
-        //Fire bullets
-
+        CheckInput();
     }
 
     IEnumerator FireBullets(){
@@ -152,9 +145,11 @@ public class PlayerControl : MonoBehaviour
     }
 
     IEnumerator ReloadBullets(){
-        while(!firingBullets && currentBullets < maxBullets){
+        while (!firingBullets && currentBullets < maxBullets)
+        {
             currentBullets++;
-            yield return new WaitForSeconds(1f/bulletReloadRate);
+            yield return new WaitForSeconds(1f / bulletReloadRate);
+        }
     }
 
     void CheckInput()
