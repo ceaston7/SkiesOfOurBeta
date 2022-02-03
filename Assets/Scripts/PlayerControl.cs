@@ -26,6 +26,7 @@ public class PlayerControl : MonoBehaviour
     float yaw;
     float pitch;
     float roll;
+    int missileBank;
 
     //Vector3 friction;
     Rigidbody rigidbody;
@@ -36,6 +37,10 @@ public class PlayerControl : MonoBehaviour
     //Weapons
     public Material missileMaterial;
 
+    // Placeholder for magic values
+    string ShootBulletKey = "k";
+    string ShootMissileKey = "m";
+
     void Start()
     {
         rotateInput = new Vector3(0, 0, 0);
@@ -43,6 +48,8 @@ public class PlayerControl : MonoBehaviour
         rigidbody = GetComponent<Rigidbody>();
         //friction = new Vector3(frictionRate, frictionRate, frictionRate);
         cameraWorldRotation = playerCamera.transform.rotation;
+
+        missileBank = 5;
     }
 
     void FixedUpdate()
@@ -79,16 +86,29 @@ public class PlayerControl : MonoBehaviour
         }
     }
 
+    public void Kill()
+    {
+        Destroy(gameObject);
+    }
+
     void Update(){
         //playerCamera.transform.rotation = cameraWorldRotation;
-        if(Input.GetKeyDown("k")){
-            var a = GameObject.CreatePrimitive(PrimitiveType.Sphere).AddComponent<Bullet>();
-            a.GetComponent<Bullet>().parentTransform = transform;
+        CheckInput();
+    }
+
+    void CheckInput()
+    {
+        if(Input.GetKeyDown(ShootBulletKey))
+        {
+            Bullet.Create(transform, "enemy");
         }
-        if(Input.GetKeyDown("m")){
+
+        if(Input.GetKeyDown(ShootMissileKey) && missileBank > 0)
+        {
             var a = GameObject.CreatePrimitive(PrimitiveType.Cube).AddComponent<HomingMissile>();
             a.GetComponent<HomingMissile>().parentTransform = transform;
             a.GetComponent<Renderer>().material = missileMaterial;
+            missileBank--;
         }
     }
 }

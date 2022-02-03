@@ -9,6 +9,9 @@ public class CirclingEnemyAI : Enemy
     public float moveSpeed;
     public float distance;
 
+    float timeSinceLastShot;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -18,12 +21,15 @@ public class CirclingEnemyAI : Enemy
         if (distance == 0f){
             distance = (gameObject.transform.position - player.transform.position).magnitude;
         }
+
+        timeSinceLastShot = 0;
     }
 
     // Update is called once per frame
     void Update()
     {
         transform.RotateAround(player.transform.position, Vector3.up, rotateSpeed * Time.deltaTime); //Rotate around player
+        transform.LookAt(player.transform);
 
         var separation = transform.position - player.transform.position;
         separation.y = 0;
@@ -42,6 +48,16 @@ public class CirclingEnemyAI : Enemy
         {
             transform.position -= separation.normalized * moveSpeed * Time.deltaTime;
             //Debug.Log("Moving toward");
+        }
+
+        if (timeSinceLastShot > 3.0f)
+        {
+            timeSinceLastShot = 0.0f;
+            Bullet.Create(transform, "Player");
+        }
+        else
+        {
+            timeSinceLastShot += Time.deltaTime;
         }
     }
 
