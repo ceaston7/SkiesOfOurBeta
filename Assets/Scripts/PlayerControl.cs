@@ -31,6 +31,12 @@ public class PlayerControl : MonoBehaviour
     float pitch;
     float roll;
 
+    float lastYaw;
+    float lastThrust;
+
+    bool yawChange;
+    bool thrustChange;
+
     //Vector3 friction;
     Rigidbody rigidbody;
     
@@ -62,6 +68,10 @@ public class PlayerControl : MonoBehaviour
     //UI
     public UIManager UI;
 
+    //VFX
+    public PlayerVFX playerVFX;
+
+
     void Start()
     {
         rotateInput = new Vector3(0, 0, 0);
@@ -77,6 +87,10 @@ public class PlayerControl : MonoBehaviour
         currentHealth = maxHealth;
         currentMines = maxMines;
         missileReloadTimer = missileReloadTime;
+        lastYaw = 0;
+        lastThrust = 0;
+        yawChange = false;
+        thrustChange = false;
     }
 
     void FixedUpdate()
@@ -86,6 +100,52 @@ public class PlayerControl : MonoBehaviour
         pitchIn = Input.GetAxis("Pitch");
         thrust = Input.GetAxis("Thrust");
         climb = Input.GetAxis("Ascend");
+
+        if(lastThrust != thrust)
+        {
+            //Remove old thrust fx
+            if(lastThrust > 0){
+                playerVFX.Thrust(PlayerVFX.Thruster.stern, false);
+            }
+            else if(lastThrust < 0){
+                playerVFX.Thrust(PlayerVFX.Thruster.fore, false);
+            }
+
+            //New thrust fx
+            if (thrust > 0)
+            {
+                playerVFX.Thrust(PlayerVFX.Thruster.stern, true);
+            }
+            else if(thrust < 0)
+            {
+                playerVFX.Thrust(PlayerVFX.Thruster.fore, true);
+            }
+        }
+
+        if (lastYaw != yawIn)
+        {
+            //Remove old thrust fx
+            if (lastYaw < 0){
+                playerVFX.Thrust(PlayerVFX.Thruster.starboardFore, false);
+                playerVFX.Thrust(PlayerVFX.Thruster.portStern, false);
+            }
+            else if(lastYaw > 0){
+                playerVFX.Thrust(PlayerVFX.Thruster.starboardStern, false);
+                playerVFX.Thrust(PlayerVFX.Thruster.portFore, false);
+            }
+
+            //New thrust fx
+            if (yawIn > 0)
+            {
+                playerVFX.Thrust(PlayerVFX.Thruster.starboardStern, true);
+                playerVFX.Thrust(PlayerVFX.Thruster.portFore, true);
+            }
+            else if(yawIn < 0)
+            {
+                playerVFX.Thrust(PlayerVFX.Thruster.starboardFore, true);
+                playerVFX.Thrust(PlayerVFX.Thruster.portStern, true);
+            }
+        }
 
         /*
         Debug.Log("Climb: " + climb);
@@ -111,6 +171,9 @@ public class PlayerControl : MonoBehaviour
             Vector3 friction = rigidbody.velocity * -frictionRate * Time.deltaTime;
             rigidbody.AddForce(friction);
         }
+
+        lastThrust = thrust;
+        lastYaw = yawIn;
     }
 
     void Update(){
