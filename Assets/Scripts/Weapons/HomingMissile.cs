@@ -14,30 +14,29 @@ public class HomingMissile : MonoBehaviour
     void Start()
     {
         transform.localScale = new Vector3(0.2f, 0.2f, 0.4f);
-
-        var enemyArray = FindObjectsOfType<Enemy>();
-        Debug.Log("ENEMIES");
-        foreach(Enemy a in enemyArray){
-            Debug.Log("enemy name: " + a.name);
-        }
-        closestEnemy = enemyArray[0];
-        float closestDist = Vector3.Distance(transform.position, enemyArray[0].transform.position);
-
-        for(int i = 1; i < enemyArray.Length; i++)
-        {
-            if(Vector3.Distance(transform.position, enemyArray[i].transform.position) < closestDist){
-                closestDist = Vector3.Distance(transform.position, enemyArray[i].transform.position);
-                closestEnemy = enemyArray[i];
-            }
-        }
-
-        //Add missile to list on locked enemy so that homing can be deactivated on enemy destruction
-        closestEnemy.MissileLocked(this);
-
         gameObject.transform.position = parentTransform.position + parentTransform.forward * parentTransform.localScale.z;
         gameObject.transform.rotation = Quaternion.LookRotation(parentTransform.forward, Vector3.up);
 
         turnSpeed = turnSpeed * Mathf.Deg2Rad;
+
+        Enemy[] enemyArray = FindObjectsOfType<Enemy>();
+        if (enemyArray.Length != 0)
+        {
+            closestEnemy = enemyArray[0];
+            float closestDist = Vector3.Distance(transform.position, enemyArray[0].transform.position);
+
+            for (int i = 1; i < enemyArray.Length; i++)
+            {
+                if (Vector3.Distance(transform.position, enemyArray[i].transform.position) < closestDist)
+                {
+                    closestDist = Vector3.Distance(transform.position, enemyArray[i].transform.position);
+                    closestEnemy = enemyArray[i];
+                }
+            }
+
+            //Add missile to list on locked enemy so that homing can be deactivated on enemy destruction
+            closestEnemy.MissileLocked(this);
+        }
     }
 
     // Update is called once per frame
@@ -47,13 +46,11 @@ public class HomingMissile : MonoBehaviour
         {
             if (closestEnemy != null)
             {
-                Debug.Log("tracking enemy " + closestEnemy.name);
                 transform.forward = Vector3.RotateTowards(transform.forward, closestEnemy.transform.position - transform.position, turnSpeed * Time.deltaTime, 0.0f);
                 transform.position += transform.forward * moveSpeed * Time.deltaTime;
             }
             else
             {
-                Debug.Log("not tracking");
                 transform.position += transform.forward * moveSpeed * Time.deltaTime;
             }
         }

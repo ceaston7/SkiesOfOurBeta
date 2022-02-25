@@ -13,8 +13,6 @@ public class Enemy : MonoBehaviour
 
     public void Kill()
     {
-        Debug.Log("Getting killed");
-        Debug.Log("lockedOn length: " + lockedOnMissiles.Count);
         for (int i = 0; i < lockedOnMissiles.Count; i++)
         {
             if (lockedOnMissiles[i] != null)
@@ -23,7 +21,6 @@ public class Enemy : MonoBehaviour
             }
         }
 
-        Debug.Log("Destroying " + gameObject.name);
         Destroy(gameObject);
     }
 }

@@ -4,28 +4,42 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    float despawnTimer;
+    float despawnTimer = 5.0f;
     public Transform parentTransform;
+
+    string targetTag;
+
+    // Static Properties
+    int bulletSpeed = 20;
+    float bulletSize = 0.2f;
+
+    public static Bullet Create(Transform parentTransform, string targetTag)
+    {
+        var a = GameObject.CreatePrimitive(PrimitiveType.Sphere).AddComponent<Bullet>();
+        a.GetComponent<Bullet>().parentTransform = parentTransform;
+        a.targetTag = targetTag;
+
+        return a;
+    }
 
     void Start()
     {
-        transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
+        transform.localScale = new Vector3(bulletSize, bulletSize, bulletSize);
 
         var rigidbody = gameObject.AddComponent<Rigidbody>();
         rigidbody.useGravity = false;
-        rigidbody.velocity = parentTransform.forward * 20;
+        rigidbody.velocity = parentTransform.GetComponent<Rigidbody>().velocity + parentTransform.forward * bulletSpeed;
         gameObject.transform.position = parentTransform.position + parentTransform.forward * parentTransform.localScale.z;
 
-        despawnTimer = 0;
         StartCoroutine(DespawnTimer());
     }
 
     IEnumerator DespawnTimer()
     {
-        while (despawnTimer < 5.0f)
+        while (despawnTimer > 0f)
         {
             //Debug.Log("Despawn timer: " + despawnTimer);
-            despawnTimer += Time.deltaTime;
+            despawnTimer -= Time.deltaTime;
             yield return null;
         }
 
@@ -34,10 +48,17 @@ public class Bullet : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("enemy"))
+        if (collision.gameObject.CompareTag(targetTag))
         {
-            collision.gameObject.GetComponent<Enemy>().Kill();
-            Destroy(gameObject);
+            if (collision.gameObject.CompareTag("enemy"))
+            {
+                collision.gameObject.GetComponent<Enemy>().Kill();
+                Destroy(gameObject);
+            } 
+            else if (collision.gameObject.CompareTag("Player"))
+            {
+                collision.gameObject.GetComponent<PlayerControl>().Kill();
+            }
         }
     }
 }
